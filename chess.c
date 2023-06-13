@@ -1,6 +1,9 @@
 #define BOARD_WIDTH 8
 #define BOARD_HEIGHT 8
 
+#define PLAYER_1 1
+#define PLAYER_2 2
+
 #define BLANK       0
 #define W_PAWN      1
 #define W_KNIGHT    2
@@ -20,6 +23,8 @@ int spaces[BOARD_WIDTH][BOARD_HEIGHT];
 char* translations[] = {
     "___", "WPN", "WKT", "WRK", "WBP", "WQN", "WKG", "BPN", "BKT", "BRK", "BBP", "BQN", "BKG"
 };
+int playerTurn;
+
 int print_board(){
     for(int i = 0; i <= BOARD_HEIGHT; i++){
         for (int j = 0; j < BOARD_WIDTH; j++){
@@ -31,6 +36,7 @@ int print_board(){
 }
 
 int init_board(){
+    playerTurn = PLAYER_1;
     for (int i = 0; i < BOARD_WIDTH; i++){
         spaces[1][i] = B_PAWN;
         spaces[BOARD_HEIGHT - 1][i] = W_PAWN;
@@ -55,6 +61,60 @@ int init_board(){
         spaces[BOARD_HEIGHT][7] = W_ROOK;
 }
 
+int select_piece(int x, int y){
+    char playerIn[5] = "init";
+    printf("Select X coordinate: ");
+    gets(playerIn);
+    x = atoi(playerIn);
+    if(x < 0 || x > BOARD_WIDTH){
+        printf("Error! Try again!\n");
+        return select_piece();
+    }else{
+        printf("You selected: %d\n", x);
+    }
+
+    printf("Select Y coordinate: ");
+    gets(playerIn);
+    y = atoi(playerIn);
+    if(y < 0 || y > BOARD_WIDTH){
+        printf("Error! Try again!\n");
+        return select_piece();
+    }else{
+        printf("You selected: %d\n", y);
+    }
+    
+    if(playerTurn == PLAYER_1){
+        if(spaces[x][y] <= BLANK || spaces[x][y] > W_KING){
+            printf("Error - Please select a white piece\n");
+        }
+    }else{
+        if(spaces[x][y] <= W_KING || spaces[x][y] > B_KING){
+            printf("Error - Please select a white piece\n");
+        }
+    }
+}
+
+int select_move(){
+    return 0;
+}
+
+int perform_move(){
+    return 0;
+}
+
+int switch_players(){
+    return 0;
+}
+
+int gameplay_loop(){
+    int startX, startY, endX, endY;
+    printf("Player %d's turn!\n", playerTurn);
+    select_piece();
+    select_move();
+    perform_move();
+    switch_players();
+}
+
 int main() {
 
     printf("Hello, World!\n");
@@ -62,6 +122,8 @@ int main() {
     printf("\n\n");
     init_board();
     print_board();
-
+    while(1){
+        gameplay_loop();
+    }
     return 0;
 }
