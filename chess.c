@@ -111,6 +111,28 @@ int select_piece(int *x, int *y){
     return spaces[*y][*x];
 }
 
+bool blankOrEnemy(int x, int y){
+    if (x < 0 || x >= BOARD_WIDTH){ // x out of range
+        return false;
+    }
+    if (y < 0 || y >= BOARD_HEIGHT){ // y out of range
+        return false;
+    }
+
+
+    if(spaces[x][y] == BLANK){ // blank space
+        return true;
+    }else{
+        if (playerTurn == PLAYER_1){    // white / player 1's enemies
+            if (spaces[y][x] > W_KING){
+                return true;
+            }
+        }else{                          // black / player 2's enemies
+            return (spaces[y][x] < B_PAWN);
+        }
+    }
+}
+
 struct move *get_legal_moves(int *x, int *y){
     struct move *returnStruct;
     int piece = spaces[*y][*x];
@@ -131,6 +153,44 @@ struct move *get_legal_moves(int *x, int *y){
         returnStruct[i].on_board = 0;
     }
     switch(piece){
+        case B_PAWN:
+            printf("Piece is a pawn\n");
+            if(spaces[*y + 1][*x] == BLANK){
+                printf("Pawn can move forward this turn\n");
+                pawnCanMove = true;
+                returnStruct[i].x = *x;
+                returnStruct[i].y = *y + 1;
+                returnStruct[i].on_board = 1;
+                i++;
+            }else{
+                printf("Pawn cannot move forward this turn\n");
+                pawnCanMove = false;
+            }
+
+            if(*y == 1 && (pawnCanMove) && (spaces[*y + 2][*x] == BLANK)){
+                printf("Pawn can dash this turn\n");
+                returnStruct[i].x = *x;
+                returnStruct[i].y = *y - 2;
+                returnStruct[i].on_board = 1;
+                i++;
+            }
+
+            if(spaces[*y + 1][*x - 1] < B_PAWN && spaces[*y + 1][*x - 1] != BLANK && *x != 0){
+                printf("Pawn can do left-attack this turn\n");
+                returnStruct[i].x = *x - 1;
+                returnStruct[i].y = *y - 1;
+                returnStruct[i].on_board = 1;
+                i++;
+            }
+
+            if(spaces[*y + 1][*x + 1] < B_PAWN && spaces[*y + 1][*x + 1] != BLANK && *x <= BOARD_WIDTH - 1){
+                printf("Pawn can do right-attack this turn\n");
+                returnStruct[i].x = *x + 1;
+                returnStruct[i].y = *y - 1;
+                returnStruct[i].on_board = 1;
+                i++;
+            }
+            break;
         case W_PAWN: 
             printf("Piece is a pawn\n");
             if(spaces[*y - 1][*x] == BLANK){
@@ -169,10 +229,11 @@ struct move *get_legal_moves(int *x, int *y){
                 i++;
             }
             break;
+        case B_ROOK:
         case W_ROOK: 
             printf("Piece is a rook\n");
             for(int j = 1; j < BOARD_HEIGHT; j++){ // upward movement
-                if ((spaces[*y - j][*x] > W_KING || spaces[*y - j][*x] == BLANK) && pathBlocked == false && (*y - j >= 0)){
+                if (blankOrEnemy(*y - j, *x) && pathBlocked == false){
                     returnStruct[i].x = *x;
                     returnStruct[i].y = *y - j;
                     returnStruct[i].on_board = 1;
