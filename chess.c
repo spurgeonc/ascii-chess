@@ -75,7 +75,7 @@ int init_board(){
         spaces[BOARD_HEIGHT - 1][6] = W_KNIGHT;
         spaces[BOARD_HEIGHT - 1][7] = W_ROOK;
 
-        spaces[4][4] = W_KING;
+        spaces[4][4] = W_QUEEN;
 }
 
 int select_piece(int *x, int *y){
@@ -322,49 +322,49 @@ struct move *get_legal_moves(int *x, int *y){
             break;
         case W_KING: 
             printf("Piece is a king\n");
-            if(spaces[*y - 1][*x - 1] > W_KING || spaces[*y - 1][*x - 1] == BLANK){ // up-left
+            if((spaces[*y - 1][*x - 1] > W_KING || spaces[*y - 1][*x - 1] == BLANK) && *y - 1 >= 0 && *x - 1 >= 0){ // up-left
                 returnStruct[i].x = *x - 1;
                 returnStruct[i].y = *y - 1;
                 returnStruct[i].on_board = 1;
                 i++;
             }
-            if(spaces[*y - 1][*x] > W_KING || spaces[*y - 1][*x] == BLANK){ // up-middle
+            if((spaces[*y - 1][*x] > W_KING || spaces[*y - 1][*x] == BLANK) && *y - 1 >= 0){ // up-middle
                 returnStruct[i].x = *x;
                 returnStruct[i].y = *y - 1;
                 returnStruct[i].on_board = 1;
                 i++;
             }
-            if(spaces[*y - 1][*x + 1] > W_KING || spaces[*y - 1][*x + 1] == BLANK){ // up-right
+            if((spaces[*y - 1][*x + 1] > W_KING || spaces[*y - 1][*x + 1] == BLANK) && *y - 1 >= 0 && *x + 1 < BOARD_WIDTH){ // up-right
                 returnStruct[i].x = *x + 1;
                 returnStruct[i].y = *y - 1;
                 returnStruct[i].on_board = 1;
                 i++;
             }
-            if(spaces[*y][*x + 1] > W_KING || spaces[*y][*x + 1] == BLANK){ // right
+            if((spaces[*y][*x + 1] > W_KING || spaces[*y][*x + 1] == BLANK) && *x + 1 < BOARD_WIDTH){ // right
                 returnStruct[i].x = *x + 1;
                 returnStruct[i].y = *y;
                 returnStruct[i].on_board = 1;
                 i++;
             }
-            if(spaces[*y + 1][*x + 1] > W_KING || spaces[*y + 1][*x + 1] == BLANK){ // down-right
+            if((spaces[*y + 1][*x + 1] > W_KING || spaces[*y + 1][*x + 1] == BLANK) && *y + 1 < BOARD_HEIGHT && *x + 1 < BOARD_WIDTH){ // down-right
                 returnStruct[i].x = *x + 1;
                 returnStruct[i].y = *y + 1;
                 returnStruct[i].on_board = 1;
                 i++;
             }
-            if(spaces[*y + 1][*x] > W_KING || spaces[*y + 1][*x] == BLANK){ // down-middle
+            if((spaces[*y + 1][*x] > W_KING || spaces[*y + 1][*x] == BLANK) && *y + 1 < BOARD_HEIGHT){ // down-middle
                 returnStruct[i].x = *x;
                 returnStruct[i].y = *y + 1;
                 returnStruct[i].on_board = 1;
                 i++;
             }
-            if(spaces[*y + 1][*x - 1] > W_KING || spaces[*y + 1][*x - 1] == BLANK){ // down-left
+            if((spaces[*y + 1][*x - 1] > W_KING || spaces[*y + 1][*x - 1] == BLANK) && *y + 1 < BOARD_HEIGHT && *x - 1 >= 0){ // down-left
                 returnStruct[i].x = *x - 1;
                 returnStruct[i].y = *y + 1;
                 returnStruct[i].on_board = 1;
                 i++;
             }
-            if(spaces[*y][*x - 1] > W_KING || spaces[*y][*x - 1] == BLANK){ // left
+            if((spaces[*y][*x - 1] > W_KING || spaces[*y][*x - 1] == BLANK) && *x - 1 >= 0){ // left
                 returnStruct[i].x = *x - 1;
                 returnStruct[i].y = *y;
                 returnStruct[i].on_board = 1;
@@ -373,6 +373,101 @@ struct move *get_legal_moves(int *x, int *y){
             break;
         case W_QUEEN: 
             printf("Piece is a queen\n");
+            for(int j = 1; j < BOARD_HEIGHT; j++){ // upward movement
+                if ((spaces[*y - j][*x] > W_KING || spaces[*y - j][*x] == BLANK) && pathBlocked == false && (*y - j >= 0)){
+                    returnStruct[i].x = *x;
+                    returnStruct[i].y = *y - j;
+                    returnStruct[i].on_board = 1;
+                    i++;
+                }
+                if(spaces[*y - j][*x] != BLANK){
+                    pathBlocked = true;
+                }
+            }
+            pathBlocked = false;
+            for(int j = 1; j < BOARD_HEIGHT; j++){ // downward movement
+                if ((spaces[*y + j][*x] > W_KING || spaces[*y + j][*x] == BLANK) && pathBlocked == false && (*y + j < BOARD_HEIGHT)){
+                    returnStruct[i].x = *x;
+                    returnStruct[i].y = *y + j;
+                    returnStruct[i].on_board = 1;
+                    i++;
+                }
+                if(spaces[*y + j][*x] != BLANK){
+                    pathBlocked = true;
+                }
+            }
+            pathBlocked = false;
+            for(int j = 1; j < BOARD_HEIGHT; j++){ // leftward movement
+                if ((spaces[*y][*x - j] > W_KING || spaces[*y][*x - j] == BLANK) && pathBlocked == false && (*x - j >= 0)){
+                    returnStruct[i].x = *x - j;
+                    returnStruct[i].y = *y;
+                    returnStruct[i].on_board = 1;
+                    i++;
+                }
+                if(spaces[*y][*x - j] != BLANK){
+                    pathBlocked = true;
+                }
+            }
+            pathBlocked = false;
+            for(int j = 1; j < BOARD_HEIGHT; j++){ // rightward movement
+                if ((spaces[*y][*x + j] > W_KING || spaces[*y][*x + j] == BLANK) && pathBlocked == false && (*x + j < BOARD_WIDTH)){
+                    returnStruct[i].x = *x + j;
+                    returnStruct[i].y = *y;
+                    returnStruct[i].on_board = 1;
+                    i++;
+                }
+                if(spaces[*y][*x + j] != BLANK){
+                    pathBlocked = true;
+                }
+            }
+            pathBlocked = false;
+            for(int j = 1; j < BOARD_HEIGHT; j++){ // up-left movement
+                if ((spaces[*y - j][*x - j] > W_KING || spaces[*y - j][*x - j] == BLANK) && pathBlocked == false && (*x - j >= 0 && *y - j >= 0)){
+                    returnStruct[i].x = *x - j;
+                    returnStruct[i].y = *y - j;
+                    returnStruct[i].on_board = 1;
+                    i++;
+                }
+                if(spaces[*y - j][*x - j] != BLANK){
+                    pathBlocked = true;
+                }
+            }
+            pathBlocked = false;
+            for(int j = 1; j < BOARD_HEIGHT; j++){ // up-right movement
+                if ((spaces[*y - j][*x + j] > W_KING || spaces[*y - j][*x + j] == BLANK) && pathBlocked == false && (*x + j < BOARD_WIDTH && *y - j >= 0)){
+                    returnStruct[i].x = *x + j;
+                    returnStruct[i].y = *y - j;
+                    returnStruct[i].on_board = 1;
+                    i++;
+                }
+                if(spaces[*y - j][*x + j] != BLANK){
+                    pathBlocked = true;
+                }
+            }
+            pathBlocked = false;
+            for(int j = 1; j < BOARD_HEIGHT; j++){ // down-right movement
+                if ((spaces[*y + j][*x + j] > W_KING || spaces[*y + j][*x + j] == BLANK) && pathBlocked == false && (*x + j < BOARD_WIDTH && *y + j < BOARD_HEIGHT)){
+                    returnStruct[i].x = *x + j;
+                    returnStruct[i].y = *y + j;
+                    returnStruct[i].on_board = 1;
+                    i++;
+                }
+                if(spaces[*y + j][*x + j] != BLANK){
+                    pathBlocked = true;
+                }
+            }
+            pathBlocked = false;
+            for(int j = 1; j < BOARD_HEIGHT; j++){ // down-left movement
+                if ((spaces[*y + j][*x - j] > W_KING || spaces[*y + j][*x - j] == BLANK) && pathBlocked == false && (*x - j >= 0 && *y + j < BOARD_HEIGHT)){
+                    returnStruct[i].x = *x - j;
+                    returnStruct[i].y = *y + j;
+                    returnStruct[i].on_board = 1;
+                    i++;
+                }
+                if(spaces[*y + j][*x - j] != BLANK){
+                    pathBlocked = true;
+                }
+            }
             break;
 
     }
