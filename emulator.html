@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Emulating C File Execution</title>
+  <style>
+    body {
+      font-family: monospace;
+    }
+
+    #output {
+      background-color: #000;
+      color: #fff;
+      padding: 10px;
+      white-space: pre-wrap;
+    }
+  </style>
+</head>
+<body>
+  <h1>Emulating C File Execution</h1>
+  <pre id="output"></pre>
+
+  <script>
+    // Function to make an AJAX request to the server and execute the C file
+    function executeCFile() {
+      var xhr = new XMLHttpRequest();
+      xhr.onreadystatechange = function() {
+        if (xhr.readyState === 4 && xhr.status === 200) {
+          document.getElementById("output").textContent = xhr.responseText;
+        }
+      };
+
+      xhr.open("GET", "../chess.c", true);  // Replace with the actual path to your C file
+      xhr.send();
+    }
+
+    // Call the executeCFile function when the page loads
+    window.onload = executeCFile;
+  </script>
+</body>
+</html>

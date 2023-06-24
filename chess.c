@@ -111,7 +111,7 @@ int select_piece(int *x, int *y){
     return spaces[*y][*x];
 }
 
-bool blankOrEnemy(int x, int y){
+bool blankOrEnemy(int y, int x){
     if (x < 0 || x >= BOARD_WIDTH){ // x out of range
         return false;
     }
@@ -120,7 +120,7 @@ bool blankOrEnemy(int x, int y){
     }
 
 
-    if(spaces[x][y] == BLANK){ // blank space
+    if(spaces[y][x] == BLANK){ // blank space
         return true;
     }else{
         if (playerTurn == PLAYER_1){    // white / player 1's enemies
@@ -128,9 +128,13 @@ bool blankOrEnemy(int x, int y){
                 return true;
             }
         }else{                          // black / player 2's enemies
-            return (spaces[y][x] < B_PAWN);
+            if (spaces[y][x] < B_PAWN){
+                return true;
+            }
         }
     }
+
+    return false; // not blank or enemy
 }
 
 struct move *get_legal_moves(int *x, int *y){
@@ -245,7 +249,7 @@ struct move *get_legal_moves(int *x, int *y){
             }
             pathBlocked = false;
             for(int j = 1; j < BOARD_HEIGHT; j++){ // downward movement
-                if ((spaces[*y + j][*x] > W_KING || spaces[*y + j][*x] == BLANK) && pathBlocked == false && (*y + j < BOARD_HEIGHT)){
+                if (blankOrEnemy(*y + j, *x) && pathBlocked == false){
                     returnStruct[i].x = *x;
                     returnStruct[i].y = *y + j;
                     returnStruct[i].on_board = 1;
@@ -257,7 +261,7 @@ struct move *get_legal_moves(int *x, int *y){
             }
             pathBlocked = false;
             for(int j = 1; j < BOARD_HEIGHT; j++){ // leftward movement
-                if ((spaces[*y][*x - j] > W_KING || spaces[*y][*x - j] == BLANK) && pathBlocked == false && (*x - j >= 0)){
+                if (blankOrEnemy(*y, *x - j) && pathBlocked == false){
                     returnStruct[i].x = *x - j;
                     returnStruct[i].y = *y;
                     returnStruct[i].on_board = 1;
@@ -269,7 +273,7 @@ struct move *get_legal_moves(int *x, int *y){
             }
             pathBlocked = false;
             for(int j = 1; j < BOARD_HEIGHT; j++){ // rightward movement
-                if ((spaces[*y][*x + j] > W_KING || spaces[*y][*x + j] == BLANK) && pathBlocked == false && (*x + j < BOARD_WIDTH)){
+                if (blankOrEnemy(*y, *x + j) && pathBlocked == false){
                     returnStruct[i].x = *x + j;
                     returnStruct[i].y = *y;
                     returnStruct[i].on_board = 1;
@@ -280,10 +284,11 @@ struct move *get_legal_moves(int *x, int *y){
                 }
             }
             break;
+        case B_BISHOP:
         case W_BISHOP: 
             printf("Piece is a bishop\n");
             for(int j = 1; j < BOARD_HEIGHT; j++){ // up-left movement
-                if ((spaces[*y - j][*x - j] > W_KING || spaces[*y - j][*x - j] == BLANK) && pathBlocked == false && (*x - j >= 0 && *y - j >= 0)){
+                if (blankOrEnemy(*y - j, *x - j) && pathBlocked == false){
                     returnStruct[i].x = *x - j;
                     returnStruct[i].y = *y - j;
                     returnStruct[i].on_board = 1;
@@ -295,7 +300,7 @@ struct move *get_legal_moves(int *x, int *y){
             }
             pathBlocked = false;
             for(int j = 1; j < BOARD_HEIGHT; j++){ // up-right movement
-                if ((spaces[*y - j][*x + j] > W_KING || spaces[*y - j][*x + j] == BLANK) && pathBlocked == false && (*x + j < BOARD_WIDTH && *y - j >= 0)){
+                if (blankOrEnemy(*y - j, *x + j) && pathBlocked == false){
                     returnStruct[i].x = *x + j;
                     returnStruct[i].y = *y - j;
                     returnStruct[i].on_board = 1;
@@ -307,7 +312,7 @@ struct move *get_legal_moves(int *x, int *y){
             }
             pathBlocked = false;
             for(int j = 1; j < BOARD_HEIGHT; j++){ // down-right movement
-                if ((spaces[*y + j][*x + j] > W_KING || spaces[*y + j][*x + j] == BLANK) && pathBlocked == false && (*x + j < BOARD_WIDTH && *y + j < BOARD_HEIGHT)){
+                if (blankOrEnemy(*y + j, *x + j) && pathBlocked == false){
                     returnStruct[i].x = *x + j;
                     returnStruct[i].y = *y + j;
                     returnStruct[i].on_board = 1;
@@ -319,7 +324,7 @@ struct move *get_legal_moves(int *x, int *y){
             }
             pathBlocked = false;
             for(int j = 1; j < BOARD_HEIGHT; j++){ // down-left movement
-                if ((spaces[*y + j][*x - j] > W_KING || spaces[*y + j][*x - j] == BLANK) && pathBlocked == false && (*x - j >= 0 && *y + j < BOARD_HEIGHT)){
+                if (blankOrEnemy(*y + j, *x - j)&& pathBlocked == false){
                     returnStruct[i].x = *x - j;
                     returnStruct[i].y = *y + j;
                     returnStruct[i].on_board = 1;
@@ -330,112 +335,115 @@ struct move *get_legal_moves(int *x, int *y){
                 }
             }
             break;
+        case B_KNIGHT:
         case W_KNIGHT: 
             printf("Piece is a knight\n");
-            if((spaces[*y - 2][*x - 1] > W_KING || spaces[*y - 2][*x - 1] == BLANK) && *y - 2 >= 0 && *x - 1 >= 0){ // 11:00
+            if(blankOrEnemy(*y - 2, *x - 1)){ // 11:00
                 returnStruct[i].x = *x -1;
                 returnStruct[i].y = *y - 2;
                 returnStruct[i].on_board = 1;
                 i++;
             }
-            if((spaces[*y - 2][*x + 1] > W_KING || spaces[*y - 2][*x + 1] == BLANK) && *y - 2 >= 0 && *x + 1 < BOARD_WIDTH){ // 1:00
+            if(blankOrEnemy(*y - 2, *x + 1)){ // 1:00
                 returnStruct[i].x = *x + 1;
                 returnStruct[i].y = *y - 2;
                 returnStruct[i].on_board = 1;
                 i++;
             }
-            if((spaces[*y - 1][*x + 2] > W_KING || spaces[*y - 1][*x + 2] == BLANK ) && *y - 2 >= 0 && *x + 2 < BOARD_WIDTH){ // 2:00
+            if(blankOrEnemy(*y - 1, *x + 2)){ // 2:00
                 returnStruct[i].x = *x + 2;
                 returnStruct[i].y = *y - 1;
                 returnStruct[i].on_board = 1;
                 i++;
             }
-            if((spaces[*y + 1][*x + 2] > W_KING || spaces[*y + 1][*x + 2] == BLANK )  && *y + 1 < BOARD_WIDTH && *x + 2 < BOARD_WIDTH){ // 3:00
+            if(blankOrEnemy(*y + 1, *x + 2) ){ // 3:00
                 returnStruct[i].x = *x + 2;
                 returnStruct[i].y = *y + 1;
                 returnStruct[i].on_board = 1;
                 i++;
             }
-            if((spaces[*y + 2][*x + 1] > W_KING || spaces[*y + 2][*x + 1] == BLANK)  && *y + 2 < BOARD_WIDTH && *x + 1 < BOARD_WIDTH){ // 5:00
+            if(blankOrEnemy(*y + 2, *x + 1)){ // 5:00
                 returnStruct[i].x = *x + 1;
                 returnStruct[i].y = *y + 2;
                 returnStruct[i].on_board = 1;
                 i++;
             }
-            if((spaces[*y + 2][*x - 1] > W_KING || spaces[*y + 2][*x - 1] == BLANK )  && *y + 2 < BOARD_WIDTH && *x - 1 >= 0){ // 7:00
+            if(blankOrEnemy(*y + 2, *x - 1)){ // 7:00
                 returnStruct[i].x = *x - 1;
                 returnStruct[i].y = *y + 2;
                 returnStruct[i].on_board = 1;
                 i++;
             }
-            if((spaces[*y + 1][*x - 2] > W_KING || spaces[*y + 1][*x - 2] == BLANK) && *y + 1 < BOARD_WIDTH && *x - 2 >= 0){ // 8:00
+            if(blankOrEnemy(*y + 1, *x - 2)){ // 8:00
                 returnStruct[i].x = *x - 2;
                 returnStruct[i].y = *y + 1;
                 returnStruct[i].on_board = 1;
                 i++;
             }
-            if((spaces[*y - 1][*x - 2] > W_KING || spaces[*y - 1][*x - 2] == BLANK) && *y - 1 >= 0 && *x - 2 >= 0){ // 10:00
+            if(blankOrEnemy(*y - 1, *x - 2)){ // 10:00
                 returnStruct[i].x = *x - 2;
                 returnStruct[i].y = *y - 1;
                 returnStruct[i].on_board = 1;
                 i++;
             }
             break;
+        case B_KING:
         case W_KING: 
             printf("Piece is a king\n");
-            if((spaces[*y - 1][*x - 1] > W_KING || spaces[*y - 1][*x - 1] == BLANK) && *y - 1 >= 0 && *x - 1 >= 0){ // up-left
+            if(blankOrEnemy(*y - 1, *x - 1)){ // up-left
                 returnStruct[i].x = *x - 1;
                 returnStruct[i].y = *y - 1;
                 returnStruct[i].on_board = 1;
                 i++;
             }
-            if((spaces[*y - 1][*x] > W_KING || spaces[*y - 1][*x] == BLANK) && *y - 1 >= 0){ // up-middle
+            if(blankOrEnemy(*y - 1, *x)){ // up-middle
                 returnStruct[i].x = *x;
                 returnStruct[i].y = *y - 1;
                 returnStruct[i].on_board = 1;
                 i++;
             }
-            if((spaces[*y - 1][*x + 1] > W_KING || spaces[*y - 1][*x + 1] == BLANK) && *y - 1 >= 0 && *x + 1 < BOARD_WIDTH){ // up-right
+            if(blankOrEnemy(*y - 1, *x + 1)){ // up-right
                 returnStruct[i].x = *x + 1;
                 returnStruct[i].y = *y - 1;
                 returnStruct[i].on_board = 1;
                 i++;
             }
-            if((spaces[*y][*x + 1] > W_KING || spaces[*y][*x + 1] == BLANK) && *x + 1 < BOARD_WIDTH){ // right
+            if(blankOrEnemy(*y, *x + 1)){ // right
                 returnStruct[i].x = *x + 1;
                 returnStruct[i].y = *y;
                 returnStruct[i].on_board = 1;
                 i++;
             }
-            if((spaces[*y + 1][*x + 1] > W_KING || spaces[*y + 1][*x + 1] == BLANK) && *y + 1 < BOARD_HEIGHT && *x + 1 < BOARD_WIDTH){ // down-right
+            if(blankOrEnemy(*y + 1, *x + 1)){ // down-right
                 returnStruct[i].x = *x + 1;
                 returnStruct[i].y = *y + 1;
                 returnStruct[i].on_board = 1;
                 i++;
             }
-            if((spaces[*y + 1][*x] > W_KING || spaces[*y + 1][*x] == BLANK) && *y + 1 < BOARD_HEIGHT){ // down-middle
+            if(blankOrEnemy(*y + 1, *x)){ // down-middle
                 returnStruct[i].x = *x;
                 returnStruct[i].y = *y + 1;
                 returnStruct[i].on_board = 1;
                 i++;
             }
-            if((spaces[*y + 1][*x - 1] > W_KING || spaces[*y + 1][*x - 1] == BLANK) && *y + 1 < BOARD_HEIGHT && *x - 1 >= 0){ // down-left
+            if(blankOrEnemy(*y + 1, *x - 1)){ // down-left
                 returnStruct[i].x = *x - 1;
                 returnStruct[i].y = *y + 1;
                 returnStruct[i].on_board = 1;
                 i++;
             }
-            if((spaces[*y][*x - 1] > W_KING || spaces[*y][*x - 1] == BLANK) && *x - 1 >= 0){ // left
+            if(blankOrEnemy(*y, *x - 1)){ // left
                 returnStruct[i].x = *x - 1;
                 returnStruct[i].y = *y;
                 returnStruct[i].on_board = 1;
                 i++;
             }
             break;
+        case B_QUEEN:
         case W_QUEEN: 
             printf("Piece is a queen\n");
             for(int j = 1; j < BOARD_HEIGHT; j++){ // upward movement
-                if ((spaces[*y - j][*x] > W_KING || spaces[*y - j][*x] == BLANK) && pathBlocked == false && (*y - j >= 0)){
+                if (blankOrEnemy(*y - j, *x) && pathBlocked == false){
                     returnStruct[i].x = *x;
                     returnStruct[i].y = *y - j;
                     returnStruct[i].on_board = 1;
@@ -447,7 +455,7 @@ struct move *get_legal_moves(int *x, int *y){
             }
             pathBlocked = false;
             for(int j = 1; j < BOARD_HEIGHT; j++){ // downward movement
-                if ((spaces[*y + j][*x] > W_KING || spaces[*y + j][*x] == BLANK) && pathBlocked == false && (*y + j < BOARD_HEIGHT)){
+                if (blankOrEnemy(*y + j, *x) && pathBlocked == false){
                     returnStruct[i].x = *x;
                     returnStruct[i].y = *y + j;
                     returnStruct[i].on_board = 1;
@@ -459,7 +467,7 @@ struct move *get_legal_moves(int *x, int *y){
             }
             pathBlocked = false;
             for(int j = 1; j < BOARD_HEIGHT; j++){ // leftward movement
-                if ((spaces[*y][*x - j] > W_KING || spaces[*y][*x - j] == BLANK) && pathBlocked == false && (*x - j >= 0)){
+                if (blankOrEnemy(*y, *x - j) && pathBlocked == false){
                     returnStruct[i].x = *x - j;
                     returnStruct[i].y = *y;
                     returnStruct[i].on_board = 1;
@@ -471,7 +479,7 @@ struct move *get_legal_moves(int *x, int *y){
             }
             pathBlocked = false;
             for(int j = 1; j < BOARD_HEIGHT; j++){ // rightward movement
-                if ((spaces[*y][*x + j] > W_KING || spaces[*y][*x + j] == BLANK) && pathBlocked == false && (*x + j < BOARD_WIDTH)){
+                if (blankOrEnemy(*y, *x + j) && pathBlocked == false){
                     returnStruct[i].x = *x + j;
                     returnStruct[i].y = *y;
                     returnStruct[i].on_board = 1;
@@ -483,7 +491,7 @@ struct move *get_legal_moves(int *x, int *y){
             }
             pathBlocked = false;
             for(int j = 1; j < BOARD_HEIGHT; j++){ // up-left movement
-                if ((spaces[*y - j][*x - j] > W_KING || spaces[*y - j][*x - j] == BLANK) && pathBlocked == false && (*x - j >= 0 && *y - j >= 0)){
+                if (blankOrEnemy(*y - j, *x - j) && pathBlocked == false){
                     returnStruct[i].x = *x - j;
                     returnStruct[i].y = *y - j;
                     returnStruct[i].on_board = 1;
@@ -495,7 +503,7 @@ struct move *get_legal_moves(int *x, int *y){
             }
             pathBlocked = false;
             for(int j = 1; j < BOARD_HEIGHT; j++){ // up-right movement
-                if ((spaces[*y - j][*x + j] > W_KING || spaces[*y - j][*x + j] == BLANK) && pathBlocked == false && (*x + j < BOARD_WIDTH && *y - j >= 0)){
+                if (blankOrEnemy(*y - j, *x + j) && pathBlocked == false){
                     returnStruct[i].x = *x + j;
                     returnStruct[i].y = *y - j;
                     returnStruct[i].on_board = 1;
@@ -507,7 +515,7 @@ struct move *get_legal_moves(int *x, int *y){
             }
             pathBlocked = false;
             for(int j = 1; j < BOARD_HEIGHT; j++){ // down-right movement
-                if ((spaces[*y + j][*x + j] > W_KING || spaces[*y + j][*x + j] == BLANK) && pathBlocked == false && (*x + j < BOARD_WIDTH && *y + j < BOARD_HEIGHT)){
+                if (blankOrEnemy(*y + j, *x + j) && pathBlocked == false){
                     returnStruct[i].x = *x + j;
                     returnStruct[i].y = *y + j;
                     returnStruct[i].on_board = 1;
@@ -519,7 +527,7 @@ struct move *get_legal_moves(int *x, int *y){
             }
             pathBlocked = false;
             for(int j = 1; j < BOARD_HEIGHT; j++){ // down-left movement
-                if ((spaces[*y + j][*x - j] > W_KING || spaces[*y + j][*x - j] == BLANK) && pathBlocked == false && (*x - j >= 0 && *y + j < BOARD_HEIGHT)){
+                if (blankOrEnemy(*y + j, *x - j)&& pathBlocked == false){
                     returnStruct[i].x = *x - j;
                     returnStruct[i].y = *y + j;
                     returnStruct[i].on_board = 1;
@@ -542,14 +550,36 @@ struct move *get_legal_moves(int *x, int *y){
         returnStruct[i].y = 0;
         returnStruct[i].on_board = 0;
     }
-    free(returnStruct);
+    
+    return returnStruct;
+}
+
+int is_valid_move(struct move *legal, int x, int y){
     return 0;
 }
 
 int select_move(int *startX, int *startY, int *endX, int *endY){
     struct move *legalMoves;
     legalMoves = get_legal_moves(startX, startY);
+    char playerIn[5];
+    printf("Enter X coordinate: ");
+    fgets(playerIn, 5, stdin);
+    *endX = atoi(playerIn);
+    if(*endX < 0 || *endX > BOARD_WIDTH - 1){
+        printf("Error! Try again!\n");
+        free(legalMoves);
+        return select_move(startX, startY, endX, endY);
+    }
+    printf("Enter Y coordinate: ");
+    fgets(playerIn, 5, stdin);
+    *endY = atoi(playerIn);
+    if(*endY < 0 || *endY > BOARD_HEIGHT - 1){
+        printf("Error! Try again!\n");
+        free(legalMoves);
+        return select_move(startX, startY, endX, endY);
+    }
 
+    free(legalMoves);
 
     return 0;
 }
@@ -572,6 +602,7 @@ int gameplay_loop(){
     printf("Player %d's turn!\n", playerTurn);
     select_piece(startX, startY);
     select_move(startX, startY, endX, endY);
+    printf("end move: %d, %d\n", *endX, *endY);
     perform_move();
     switch_players();
 
